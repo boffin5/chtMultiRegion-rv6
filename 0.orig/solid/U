@@ -1,0 +1,93 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+//internalField   uniform (10 0 0);
+internalField   uniform (0.01 0 0);
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+    
+    "leftSide|upperWall|ground"
+    {
+        type            slip;
+    }
+    
+    rightSide
+    {
+        type            symmetry;
+    }
+        
+    inlet
+    {
+        type            fixedValue;
+        value           $internalField;
+        //value           uniform (10 0 0);
+    }
+    
+    outlet
+    {
+        type            inletOutlet;
+        //inletValue      uniform (10 0 0);
+        //value           uniform (10 0 0);
+        inletValue      $internalField;
+        value           $internalField;
+    }
+    
+    bod
+    {
+       //type            noSlip;
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    
+    rad_radinlet
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    
+    rad_radoutlet
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+
+    "(rad_radtop|rad_radbottom|rad_radlh|rad_radrh)"
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+       
+    solid_to_fluid
+    {
+       //type            noSlip;
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    
+    "proc.*"
+    {
+        type processor;
+    }
+
+}
+
+
+// ************************************************************************* //

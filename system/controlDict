@@ -1,0 +1,126 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     chtMultiRegionFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+//endTime         2000;
+endTime         100;
+
+deltaT          1;
+//deltaT          .001;
+
+writeControl    timeStep;
+
+writeInterval   50;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+functions
+{
+    #include "streamLines"
+    #include "cuttingPlane"
+    #include "forceCoeffs"
+
+    FieldsMinMax                // monitor 
+    {
+        type  fieldMinMax;
+        functionObjectLibs      ("libfieldFunctionObjects.so");
+        region                  fluid;
+        enabled                 true;
+        mode                    component;
+        writeControl            timeStep;
+        writeInterval           5;  // output every 5 time steps, change
+ as needed
+        log                     true;
+        fields                  (p U k);  // list of any fields you want
+ to monitor
+    }
+
+    FreeMemorySystemCall        // memory
+    {
+        type                    systemCall;
+        region                  fluid;
+        libs                    ("libutilityFunctionObjects.so");
+        executeCalls            ();
+        writeCalls              ("free");
+        endCalls                ();
+        writeControl            timeStep;
+        writeInterval           50;  // Set the interval as required
+    }
+    
+    bod
+        {
+            log no;
+	    enabled yes;
+
+            type forceCoeffs;
+            
+            region fluid;
+            
+            functionObjectLibs ( "libforces.so");
+
+            patches (bod);
+
+            rho rhoInf;
+            rhoInf 1.205;
+
+            //porosity no;
+            CofR ( 0 0 0);
+            liftDir ( 0 0 1);
+            dragDir ( 1 0 0);
+            pitchAxis ( 0 1 0);
+            magUInf 30;
+            lRef 1;
+            Aref 1;
+            writeControl timeStep;
+            writeInterval 1;
+        }
+        
+        yplus
+        {
+            type    yPlus;
+            functionObjectLibs ("libfieldFunctionObjects.so");
+            
+            region  fluid;
+
+            enabled true;
+
+            writeControl outputTime;                      
+            
+         }
+
+}
+
+// ************************************************************************* //

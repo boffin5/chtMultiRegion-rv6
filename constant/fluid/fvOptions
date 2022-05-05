@@ -1,0 +1,70 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fluidTosolid
+{
+    type            constantHeatTransfer;
+
+    interpolationMethod cellVolumeWeight;
+    nbrRegionName   solid;
+    master          false;
+
+    nbrModel        solidTofluid;
+    fields          (h);
+    semiImplicit    no;
+}
+
+
+porosityBlockage
+{
+    type            interRegionExplicitPorositySource;
+
+    interRegionExplicitPorositySourceCoeffs
+    {
+        interpolationMethod cellVolumeWeight;
+        nbrRegionName   solid;
+
+        type            DarcyForchheimer;
+        
+        // D 100;  // Very little blockage
+        // D 200;  // Some blockage but steady flow
+        // D 500;  // Slight waviness in the far wake
+        // D 1000; // Fully shedding behavior
+
+        d   (120 100 100);
+        f   (120 100 100);
+
+        coordinateSystem
+        {
+            type    cartesian;
+            origin  (0 0 0);
+            coordinateRotation
+            {
+                /*type    axesRotation;
+                e1      (0.5 0 0.866025);
+                e2      (0 1 0);*/
+                
+                type    axesRotation;
+                e1      (0 1 0);
+                e2      (0 0 1);
+            }
+        }
+    }
+}
+
+
+// ************************************************************************* //

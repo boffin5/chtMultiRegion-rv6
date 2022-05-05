@@ -1,0 +1,76 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+rm -rf 0
+cp -r 0.orig 0
+
+# run sequence for parallel
+
+surfaceFeatures 
+
+# create initial meshes for both regions
+
+blockMesh -region solid
+blockMesh -region fluid
+
+# decompose both regions at once
+
+decomposePar -copyZero -allRegions 
+
+# mesh solid region
+
+for i in $(seq 0 1);
+do
+cp -r processor$i/constant/solid/polyMesh processor$i/constant/polyMesh;
+rm -r processor$i/constant/solid/polyMesh;
+done
+
+mpirun -np 2 snappyHexMesh -dict system/snappyHexMeshDict.1 -parallel -overwrite 2>&1|tee SHM-solid.log
+
+for i in $(seq 0 1);
+do
+cp -r processor$i/constant/polyMesh processor$i/constant/solid/polyMesh;
+rm -r processor$i/constant/polyMesh;
+done
+
+
+# mesh fluid region
+
+for i in $(seq 0 1);
+do
+cp -r processor$i/constant/fluid/polyMesh processor$i/constant/polyMesh;
+rm -r processor$i/constant/fluid/polyMesh;
+done
+
+mpirun -np 2 snappyHexMesh -dict system/snappyHexMeshDict.2 -parallel -overwrite 2>&1|tee SHM-fluid.log
+
+for i in $(seq 0 1);
+do
+cp -r processor$i/constant/polyMesh processor$i/constant/fluid/polyMesh;
+rm -r processor$i/constant/polyMesh;
+done
+
+#check both meshes in parallel 
+
+mpirun -np 2 checkMesh -region solid -constant -parallel 2>&1 | tee checkMesh-solid.log
+mpirun -np 2 checkMesh -region fluid -constant -parallel 2>&1 | tee checkMesh-fluid.log  
+
+# run potentialFoam
+
+#for i in $(seq 0 1);
+#do
+#mpirun -np 2  potentialFoam -parallel -noFunctionObjects
+#done
+
+
+
+# run the solver
+
+mpirun -np 2  chtMultiRegionFoam -parallel | tee run.log
+
+runApplication reconstructParMesh -constant -latestTime -allRegions
+
+runApplication reconstructPar -constant -latestTime -allRegions
+

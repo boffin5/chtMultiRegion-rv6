@@ -1,0 +1,34 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/CleanFunctions      # Tutorial clean functions
+#------------------------------------------------------------------------------
+
+cleanCase0
+
+foamCleanPolyMesh -region fluid
+foamCleanPolyMesh -region solid
+
+rm -r 0
+
+rm *.log
+rm log.*
+
+rm -r proc*
+
+rm -r constant/fluid/polyMesh
+
+rm -r constant/polyMesh
+rm -r constant/solid/polyMesh
+rm -r constant/extendedFeatureEdgeMesh
+
+rm -r *00
+rm -r *50
+
+rm -r post*
+
+rm -f *.OpenFOAM
+
+rm 0/cell*
+rm 0/point*
+
+#------------------------------------------------------------------------------

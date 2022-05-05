@@ -1,0 +1,90 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p_rgh;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 84559;
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+    
+    "leftSide|upperWall|ground"
+    {
+        type            slip;
+        //type            fixedValue;
+        //value           $internalField;
+    }
+    
+    rightSide
+    {
+        type            symmetry;
+    }
+        
+    inlet
+    {
+        type            zeroGradient;
+        //type            fixedFluxPressure;
+    }
+    
+    outlet
+    {
+        type            fixedValue;
+        value           uniform 84559;
+    }
+    
+    bod
+    {
+        type            zeroGradient;
+        //type            fixedFluxPressure;
+    }
+    
+    rad_radinlet
+    {
+        type            zeroGradient;
+        //type            fixedValue;
+        //value           $internalField;
+    }
+    
+    rad_radoutlet
+    {
+        type            zeroGradient;
+        /*type            inletOutlet;
+        inletValue      $internalField;
+        value           $internalField;*/
+    }
+
+    "(rad_radtop|rad_radbottom|rad_radlh|rad_radrh)"
+    {
+        type            zeroGradient;
+    }
+    
+    solid_to_fluid
+    {
+        type            zeroGradient;
+        //type            fixedFluxPressure;
+    }
+
+    "proc.*"
+    {
+        type processor;
+    }
+
+}
+
+
+// ************************************************************************* //

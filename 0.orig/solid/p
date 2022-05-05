@@ -1,0 +1,95 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 84559;
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+    
+    "leftSide|upperWall|ground"
+    {
+        type            slip;
+        //type            calculated;
+        //value           uniform 84559;
+    }
+    
+    rightSide
+    {
+        type            symmetry;
+    }
+        
+    inlet
+    {
+        type            zeroGradient;
+        //type            calculated;
+        //value           uniform 84559;
+    }
+    
+    outlet
+    {
+        //type            calculated;
+        type            fixedValue;
+        value           uniform 84559;
+    }
+    
+    bod
+    {
+        type            zeroGradient;
+        //type            calculated
+        //value           uniform 84559;
+    }
+    
+     rad_radinlet
+    {
+        type            zeroGradient;
+        //type            fixedValue;
+        //value           $internalField;
+    }
+    
+    rad_radoutlet
+    {
+        type            zeroGradient;
+        /*type            inletOutlet;
+        inletValue      $internalField;
+        value           $internalField;*/
+    }
+
+    "(rad_radtop|rad_radbottom|rad_radlh|rad_radrh)"
+    {
+        type            zeroGradient;
+    }
+       
+    solid_to_fluid
+    {
+        type            zeroGradient;
+        //type            calculated;
+        //value           uniform 84559;
+    }
+    
+    "proc.*"
+    {
+        type processor;
+    }
+
+    
+}
+
+
+// ************************************************************************* //
